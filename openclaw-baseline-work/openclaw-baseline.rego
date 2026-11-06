@@ -9,6 +9,8 @@ container[c] { p := pod[_]; c := object.get(p.spec, "initContainers", [])[_] }
 allowed_image(image) { image == input.parameters.images[_] }
 allowed_scc(name) { name == input.parameters.scc }
 allowed_scc(name) { name == input.parameters.sccs[_] }
+allowed_service_account(name) { name == input.parameters.serviceAccount }
+allowed_service_account(name) { name == input.parameters.serviceAccounts[_] }
 allowed_state_claim(name) { name == "openclaw-state" }
 allowed_state_claim(name) { name == input.parameters.stateClaims[_] }
 allowed_config_map(name) { name == "openclaw-config" }
@@ -22,7 +24,7 @@ allowed_mount(m) { m.name == "config"; m.mountPath == "/config" }
 allowed_mount(m) { m.name == "tmp"; m.mountPath == "/tmp" }
 allowed_mount(m) { startswith(m.name, "kube-api-access-"); m.mountPath == "/var/run/secrets/kubernetes.io/serviceaccount" }
 
-violation[{"msg": "require dedicated workload service account"}] { p := pod[_]; object.get(p.spec, "serviceAccountName", "default") != input.parameters.serviceAccount }
+violation[{"msg": "require dedicated workload service account"}] { p := pod[_]; not allowed_service_account(object.get(p.spec, "serviceAccountName", "default")) }
 violation[{"msg": "require an approved dedicated SCC annotation"}] { p := pod[_]; not allowed_scc(object.get(object.get(p.metadata, "annotations", {}), "openshift.io/required-scc", "")) }
 violation[{"msg": msg}] { p := pod[_]; k := ["hostNetwork", "hostPID", "hostIPC", "shareProcessNamespace"][_]; object.get(p.spec, k, false) != false; msg := sprintf("%s must be false", [k]) }
 violation[{"msg": "ephemeral containers require a separate reviewed support workflow"}] { p := pod[_]; count(object.get(p.spec, "ephemeralContainers", [])) > 0 }

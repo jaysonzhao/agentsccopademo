@@ -84,19 +84,25 @@ binding=resource('rbac.authorization.k8s.io/v1','RoleBinding','use-openclaw-scc'
 binding['roleRef']={'apiGroup':'rbac.authorization.k8s.io','kind':'Role','name':'use-openclaw-scc'}
 binding['subjects']=[{'kind':'ServiceAccount','name':sa,'namespace':ns}]
 dump('scc-access.yaml',[role,binding])
-template={'apiVersion':'templates.gatekeeper.sh/v1','kind':'ConstraintTemplate','metadata':{'name':'openclawbaseline'},
- 'spec':{'crd':{'spec':{'names':{'kind':'OpenClawBaseline'},'validation':{'openAPIV3Schema':{
- 'type':'object','required':['images','serviceAccount','scc'],'properties':{'images':{'type':'array','minItems':1,'items':{'type':'string'}},
- 'serviceAccount':{'type':'string'},'scc':{'type':'string'},'sccs':{'type':'array','minItems':1,'items':{'type':'string'}},
- 'stateClaims':{'type':'array','minItems':1,'items':{'type':'string'}},'configMaps':{'type':'array','minItems':1,'items':{'type':'string'}},
- 'secrets':{'type':'array','minItems':1,'items':{'type':'string'}}}}}},
- 'targets':[{'target':'admission.k8s.gatekeeper.sh','rego':Path('openclaw-baseline.rego').read_text()}]}}
+parameter_schema={'type':'object','required':['images','serviceAccount','scc'],'properties':{
+ 'images':{'type':'array','minItems':1,'items':{'type':'string'}},
+ 'serviceAccount':{'type':'string'},'serviceAccounts':{'type':'array','minItems':1,'items':{'type':'string'}},
+ 'scc':{'type':'string'},'sccs':{'type':'array','minItems':1,'items':{'type':'string'}},
+ 'stateClaims':{'type':'array','minItems':1,'items':{'type':'string'}},
+ 'configMaps':{'type':'array','minItems':1,'items':{'type':'string'}},
+ 'secrets':{'type':'array','minItems':1,'items':{'type':'string'}}}}
+template={'apiVersion':'templates.gatekeeper.sh/v1','kind':'ConstraintTemplate',
+ 'metadata':{'name':'openclawbaseline'},
+ 'spec':{'crd':{'spec':{'names':{'kind':'OpenClawBaseline'},
+                        'validation':{'openAPIV3Schema':parameter_schema}}},
+         'targets':[{'target':'admission.k8s.gatekeeper.sh',
+                     'rego':Path('openclaw-baseline.rego').read_text()}]}}
 constraint={'apiVersion':'constraints.gatekeeper.sh/v1beta1','kind':'OpenClawBaseline','metadata':{'name':ns+'-baseline'},
  'spec':{'enforcementAction':'dryrun','match':{'scope':'Namespaced','namespaces':[ns],'kinds':[
  {'apiGroups':[''],'kinds':['Pod','PodTemplate','ReplicationController','Service']},
  {'apiGroups':['apps'],'kinds':['Deployment','StatefulSet','DaemonSet','ReplicaSet']},
  {'apiGroups':['batch'],'kinds':['Job','CronJob']},{'apiGroups':['route.openshift.io'],'kinds':['Route']}]},
- 'parameters':{'images':images,'serviceAccount':sa,'scc':scc_name,
+ 'parameters':{'images':images,'serviceAccount':sa,'serviceAccounts':[sa,ns+'-restricted-agent'],'scc':scc_name,
                 'sccs':[scc_name,ns+'-restricted'],
                 'stateClaims':['openclaw-state','openclaw-restricted-state'],
                 'configMaps':['openclaw-config','openclaw-restricted-config'],
