@@ -5,6 +5,8 @@
   "object": "Deployment/prompt-gk-token",
   "attempts": 1,
   "persisted": false,
+  "historical": true,
+  "policyChange": "The token-automount violation was removed to permit the requested service-account token; use the current replicas violation for a denial test.",
   "status": "PASS",
   "httpStatus": 403,
   "constraint": "openclaw-baseline-baseline",

@@ -1,5 +1,5 @@
 {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "cluster": "api.cluster-v4vsc.v4vsc.sandbox287.opentlc.com",
   "namespace": "openclaw-baseline",
   "route": "https://openclaw-openclaw-baseline.apps.cluster-v4vsc.v4vsc.sandbox287.opentlc.com",
@@ -13,108 +13,108 @@
       "expected": "Allow",
       "actual": "Allowed",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-positive.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a01-gk-positive",
       "note": "valid Deployment"
     },
     {
       "id": "A02",
       "layer": "Gatekeeper",
-      "case": "gk-token",
-      "expected": "Deny",
-      "actual": "Denied",
-      "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-token.evidence.txt",
-      "note": "automountServiceAccountToken"
-    },
-    {
-      "id": "A03",
-      "layer": "Gatekeeper",
       "case": "gk-tag",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-tag.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a02-gk-tag",
       "note": "approved digest"
     },
     {
-      "id": "A04",
+      "id": "A03",
       "layer": "Gatekeeper",
       "case": "gk-other-digest",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-other-digest.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a03-gk-other-digest",
       "note": "approved digest"
     },
     {
-      "id": "A05",
+      "id": "A04",
       "layer": "Gatekeeper",
       "case": "gk-missing-limit",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-missing-limit.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a04-gk-missing-limit",
       "note": "limits.memory"
     },
     {
-      "id": "A06",
+      "id": "A05",
       "layer": "Gatekeeper",
       "case": "gk-writable-root",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-writable-root.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a05-gk-writable-root",
       "note": "readOnlyRootFilesystem"
     },
     {
-      "id": "A07",
+      "id": "A06",
       "layer": "Gatekeeper",
       "case": "gk-wrong-sa",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-wrong-sa.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a06-gk-wrong-sa",
       "note": "dedicated workload service account"
     },
     {
-      "id": "A08",
+      "id": "A07",
       "layer": "Gatekeeper",
       "case": "gk-missing-scc",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-missing-scc.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a07-gk-missing-scc",
       "note": "dedicated SCC"
     },
     {
-      "id": "A09",
+      "id": "A08",
       "layer": "Gatekeeper",
       "case": "gk-init-capability",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-init-capability.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a08-gk-init-capability",
       "note": "added capabilities"
     },
     {
-      "id": "A10",
+      "id": "A09",
       "layer": "Gatekeeper",
       "case": "gk-two-replicas",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-two-replicas.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a09-gk-two-replicas",
       "note": "exactly one"
+    },
+    {
+      "id": "A10",
+      "layer": "Gatekeeper",
+      "case": "gk-share-process",
+      "expected": "Deny",
+      "actual": "Denied",
+      "status": "PASS",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a10-gk-share-process",
+      "note": "shareProcessNamespace"
     },
     {
       "id": "A11",
       "layer": "Gatekeeper",
-      "case": "gk-projected-token",
+      "case": "gk-projected-configmap",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-projected-token.evidence.txt",
-      "note": "projected service-account"
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a11-gk-projected-configmap",
+      "note": "unapproved projected ConfigMap"
     },
     {
       "id": "A12",
@@ -123,7 +123,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-sidecar.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a12-gk-sidecar",
       "note": "unsafe-sidecar"
     },
     {
@@ -133,7 +133,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-other-secret.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a13-gk-other-secret",
       "note": "envFrom Secret"
     },
     {
@@ -143,7 +143,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/gk-bad-mount.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a14-gk-bad-mount",
       "note": "unapproved path"
     },
     {
@@ -153,17 +153,17 @@
       "expected": "Allow",
       "actual": "Allowed",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-positive.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a15-scc-positive",
       "note": "valid Pod admission; dry-run does not schedule it"
     },
     {
       "id": "A16",
       "layer": "SCC",
-      "case": "scc-uid-zero",
+      "case": "scc-host-port",
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-uid-zero.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a16-scc-host-port",
       "note": "SCC must reject"
     },
     {
@@ -173,7 +173,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-privileged.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a17-scc-privileged",
       "note": "SCC must reject"
     },
     {
@@ -183,7 +183,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-host-network.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a18-scc-host-network",
       "note": "SCC must reject"
     },
     {
@@ -193,7 +193,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-host-path.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a19-scc-host-path",
       "note": "SCC must reject"
     },
     {
@@ -203,7 +203,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-writable-root.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a20-scc-writable-root",
       "note": "SCC must reject"
     },
     {
@@ -213,7 +213,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-capability.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a21-scc-capability",
       "note": "SCC must reject"
     },
     {
@@ -223,7 +223,7 @@
       "expected": "Deny",
       "actual": "Denied",
       "status": "PASS",
-      "evidence": "openclaw-baseline-work/rendered/demos/scc-init-escalation.evidence.txt",
+      "evidence": "openclaw-baseline-work/admission-suite-evidence.md#a22-scc-init-escalation",
       "note": "SCC must reject"
     }
   ],
@@ -250,10 +250,10 @@
       "id": "INF-03",
       "group": "Infrastructure",
       "case": "Required SCC",
-      "expected": "Dedicated restricted SCC selected",
-      "actual": "openclaw-baseline-restricted",
+      "expected": "Dedicated custom SCC selected; UID rule permits the OpenClaw image user",
+      "actual": "openclaw-baseline-anyuid",
       "status": "PASS",
-      "note": "Derived from restricted-v3; pod uses user namespace and non-root execution."
+      "note": "Cloned from restricted-v3 with RunAsAny; seccomp, nonprivileged, no-escalation, drop-ALL, and read-only-root controls remain."
     },
     {
       "id": "INF-04",
@@ -277,10 +277,11 @@
       "id": "INF-06",
       "group": "Infrastructure",
       "case": "Constraint enforcement",
-      "expected": "Deny",
-      "actual": "Deny",
+      "expected": "Compliant Deployment allowed; violating Deployment denied",
+      "actual": "Compliant server dry-run allowed; replicas=2 denied with HTTP 403",
       "status": "PASS",
-      "note": "Only the OpenClawBaseline constraint in the demo namespace."
+      "note": "OpenClawBaseline is enforcementAction=deny and matches only openclaw-baseline; neither dry-run object was persisted.",
+      "evidence": "openclaw-baseline-work/gatekeeper-live-dryrun.evidence.txt"
     },
     {
       "id": "INF-07",
@@ -313,11 +314,21 @@
     {
       "id": "R01",
       "group": "Runtime",
-      "case": "Filesystem and SQLite containment",
-      "expected": "Non-root, no API token, writable state/tmp, denied system-root write",
-      "actual": "Verified in the running Gateway container",
+      "case": "Service-account token and RBAC",
+      "expected": "Non-root, token mounted, Deployment create allowed, update/delete denied",
+      "actual": "UID 1000; token file present; create=yes; update/delete=no",
       "status": "PASS",
-      "note": "OpenShift SCCExecRestrictions timed out on the first attempt; the probe later passed.",
+      "note": "Token contents were not read or recorded. RBAC is namespace-scoped.",
+      "evidence": "openclaw-baseline-work/runtime-rbac.evidence.txt"
+    },
+    {
+      "id": "R02",
+      "group": "Runtime",
+      "case": "Filesystem and SQLite containment",
+      "expected": "Writable state/tmp and denied system-root write",
+      "actual": "Previously verified before the API token mount; not rerun after the change",
+      "status": "MANUAL_CONFIGURATION_PENDING",
+      "note": "The earlier probe evidence predates the service-account token mount.",
       "evidence": "openclaw-baseline-work/runtime-probe.evidence.txt"
     },
     {
@@ -356,9 +367,20 @@
       "expected": "HTTP 403 from Gatekeeper; dry-run object not persisted",
       "actual": "HTTP 403 \u00b7 openclaw-baseline-baseline",
       "status": "PASS",
-      "note": "One OpenClaw exec call using MiniMax-M2.7-highspeed; temporary RBAC and token removed after the run.",
+      "note": "Historical native exec test using MiniMax-M2.7-highspeed before the policy was adjusted to allow the requested service-account token; use a replicas violation for current denial verification.",
       "model": "MiniMax-M2.7-highspeed",
+      "historical": true,
       "evidence": "openclaw-policy-tool/denial-result.json"
+    },
+    {
+      "id": "GK01",
+      "group": "Gatekeeper API",
+      "case": "Current server-side dry-run enforcement",
+      "expected": "Valid Deployment allowed; replicas=2 denied by the named Constraint",
+      "actual": "Valid Deployment allowed; replicas=2 returned HTTP 403",
+      "status": "PASS",
+      "note": "Both requests used server-side dry-run and neither object was persisted.",
+      "evidence": "openclaw-baseline-work/gatekeeper-live-dryrun.evidence.txt"
     },
     {
       "id": "P01",

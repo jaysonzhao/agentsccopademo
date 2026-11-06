@@ -14,7 +14,6 @@ def gcase(name,change,reason):
     save('gk-'+name,d,'deny','gatekeeper',reason)
 positive=copy.deepcopy(app); positive['metadata']['name']='demo-gk-positive'
 save('gk-positive',positive,'allow','gatekeeper','valid Deployment')
-gcase('token',lambda d,p:p.update(automountServiceAccountToken=True),'automountServiceAccountToken')
 gcase('tag',lambda d,p:p['containers'][0].update(image='ghcr.io/openclaw/openclaw:latest'),'approved digest')
 gcase('other-digest',lambda d,p:p['containers'][0].update(image='ghcr.io/openclaw/openclaw@sha256:'+'0'*64),'approved digest')
 gcase('missing-limit',lambda d,p:p['containers'][0]['resources']['limits'].pop('memory'),'limits.memory')
@@ -23,7 +22,8 @@ gcase('wrong-sa',lambda d,p:p.update(serviceAccountName='default'),'dedicated wo
 gcase('missing-scc',lambda d,p:d['spec']['template']['metadata']['annotations'].pop('openshift.io/required-scc'),'dedicated SCC')
 gcase('init-capability',lambda d,p:p['initContainers'][0]['securityContext']['capabilities'].update(add=['SYS_ADMIN']),'added capabilities')
 gcase('two-replicas',lambda d,p:d['spec'].update(replicas=2),'exactly one')
-gcase('projected-token',lambda d,p:p['volumes'].append({'name':'injected-token','projected':{'sources':[{'serviceAccountToken':{'path':'token'}}]}}),'projected service-account')
+gcase('share-process',lambda d,p:p.update(shareProcessNamespace=True),'shareProcessNamespace')
+gcase('projected-configmap',lambda d,p:p['volumes'].append({'name':'unsafe-config','projected':{'sources':[{'configMap':{'name':'unrelated-config'}}]}}),'unapproved projected ConfigMap')
 gcase('sidecar',lambda d,p:p['containers'].append({'name':'unsafe-sidecar','image':p['containers'][0]['image'],'command':['sleep','3600']}),'unsafe-sidecar')
 gcase('other-secret',lambda d,p:p['containers'][0]['envFrom'].append({'secretRef':{'name':'unrelated-credentials'}}),'envFrom Secret')
 gcase('bad-mount',lambda d,p:p['containers'][0]['volumeMounts'][0].update(mountPath='/etc'),'unapproved path')
@@ -36,7 +36,7 @@ save('scc-positive',pod,'allow','scc','valid Pod admission; dry-run does not sch
 def scase(name,change):
     d=copy.deepcopy(pod); d['metadata']['name']='scc-'+name; change(d['spec'])
     save('scc-'+name,d,'deny','scc','SCC must reject')
-scase('uid-zero',lambda p:p['containers'][0]['securityContext'].update(runAsUser=0))
+scase('host-port',lambda p:p['containers'][0].setdefault('ports',[]).append({'containerPort':8080,'hostPort':8080}))
 scase('privileged',lambda p:p['containers'][0]['securityContext'].update(privileged=True))
 scase('host-network',lambda p:p.update(hostNetwork=True))
 scase('host-path',lambda p:p['volumes'].append({'name':'host-root','hostPath':{'path':'/'}}))

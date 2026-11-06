@@ -6,7 +6,7 @@ const token = process.env.OPENCLAW_POLICY_TEST_TOKEN;
 const caPath = '/config/policy-test-ca.crt';
 const namespace = 'openclaw-baseline';
 const sourceName = 'openclaw';
-const requestName = 'prompt-gk-token';
+const requestName = 'prompt-gk-replicas';
 
 if (!apiBase || !token) {
   console.error('Policy-test API configuration is missing.');
@@ -87,7 +87,7 @@ try {
   const deployment = JSON.parse(source.body);
   stripServerMetadata(deployment);
   deployment.metadata.name = requestName;
-  deployment.spec.template.spec.automountServiceAccountToken = true;
+  deployment.spec.replicas = 2;
 
   // This is the only CREATE request: dryRun=All guarantees no object is persisted.
   const admission = await request(

@@ -14,7 +14,7 @@ assert re.fullmatch(r'[a-z0-9][a-z0-9.-]+[a-z0-9]',host)
 assert storage and not out.exists(), 'Use a fresh output directory; do not overwrite a reviewed deployment'
 out.mkdir(parents=True)
 sa = 'openclaw-agent'
-scc_name = ns+'-restricted'
+scc_name = os.environ.get('OPENCLAW_SCC_NAME',ns+'-anyuid')
 def load(name): return yaml.safe_load((src/name).read_text())
 def dump(name, docs):
     (out/name).write_text(yaml.safe_dump_all(docs,sort_keys=False))
@@ -29,7 +29,7 @@ p['metadata'].setdefault('annotations',{})['openshift.io/required-scc']=scc_name
 ps.update(serviceAccountName=sa,automountServiceAccountToken=True,enableServiceLinks=False,
           hostNetwork=False,hostPID=False,hostIPC=False,shareProcessNamespace=False)
 ps['securityContext']={'runAsNonRoot':True,'seccompProfile':{'type':'RuntimeDefault'},'fsGroupChangePolicy':'OnRootMismatch'}
-security={'privileged':False,'runAsNonRoot':True,'allowPrivilegeEscalation':False,
+security={'privileged':False,'runAsUser':1000,'runAsNonRoot':True,'allowPrivilegeEscalation':False,
           'readOnlyRootFilesystem':True,'capabilities':{'drop':['ALL']},'seccompProfile':{'type':'RuntimeDefault'}}
 base=json.loads(Path(os.environ['OPENCLAW_BASE_SCC_JSON']).read_text())
 if base.get('userNamespaceLevel')=='RequirePodLevel': ps['hostUsers']=False
@@ -71,6 +71,7 @@ net=resource('networking.k8s.io/v1','NetworkPolicy','openclaw-open-network',
 dump('app.yaml',[account,cm,pvc,d,svc,route,net]); dump('deployment.yaml',[d])
 assert base['runAsUser']['type']=='MustRunAsRange' and base['seLinuxContext']['type']=='MustRunAs'
 base['metadata']={'name':scc_name}; base.pop('status',None)
+base['runAsUser']={'type':'RunAsAny'}
 base.update(users=[],groups=[],priority=None,allowPrivilegedContainer=False,allowPrivilegeEscalation=False,
             defaultAllowPrivilegeEscalation=False,readOnlyRootFilesystem=True,allowHostDirVolumePlugin=False,
             allowHostNetwork=False,allowHostPorts=False,allowHostPID=False,allowHostIPC=False,

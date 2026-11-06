@@ -1,0 +1,10 @@
+OpenClaw runtime identity and RBAC verification
+
+Container UID: 1000
+Service-account token file mounted at /var/run/secrets/kubernetes.io/serviceaccount/token: true
+Token contents: not read or recorded
+
+For system:serviceaccount:openclaw-baseline:openclaw-agent in namespace openclaw-baseline:
+create deployments.apps: yes
+update deployments.apps: no
+delete deployments.apps: no

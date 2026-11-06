@@ -1,0 +1,20 @@
+Live OpenClaw Gatekeeper verification
+
+Constraint: OpenClawBaseline/openclaw-baseline-baseline
+Enforcement: deny
+Namespace scope: openclaw-baseline
+Required SCC parameter: openclaw-baseline-anyuid
+ConstraintTemplate compiled: true; observedGeneration matched generation 2 on all Gatekeeper pods
+
+Positive server-side dry-run:
+deployment.apps/prompt-gk-positive-verify
+Result: allowed
+
+Negative server-side dry-run:
+HTTP 403 Forbidden
+admission webhook "validation.gatekeeper.sh" denied the request:
+[openclaw-baseline-baseline] OpenClaw requires exactly one Deployment replica
+Test mutation: spec.replicas=2
+
+Persistence check:
+Neither prompt-gk-positive-verify nor prompt-gk-replicas-verify exists after the dry-runs.

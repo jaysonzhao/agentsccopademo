@@ -11,7 +11,6 @@ drop_all(c) { object.get(object.get(object.get(c, "securityContext", {}), "capab
 allowed_volume(v) { k := {"configMap", "secret", "emptyDir", "persistentVolumeClaim", "downwardAPI", "projected"}[_]; object.get(v, k, null) != null }
 
 violation[{"msg": "require dedicated workload service account"}] { p := pod[_]; object.get(p.spec, "serviceAccountName", "default") != input.parameters.serviceAccount }
-violation[{"msg": "automountServiceAccountToken must be explicitly false"}] { p := pod[_]; object.get(p.spec, "automountServiceAccountToken", true) != false }
 violation[{"msg": "require the dedicated SCC annotation"}] { p := pod[_]; object.get(object.get(p.metadata, "annotations", {}), "openshift.io/required-scc", "") != input.parameters.scc }
 violation[{"msg": msg}] { p := pod[_]; k := ["hostNetwork", "hostPID", "hostIPC", "shareProcessNamespace"][_]; object.get(p.spec, k, false) != false; msg := sprintf("%s must be false", [k]) }
 violation[{"msg": "ephemeral containers require a separate reviewed support workflow"}] { p := pod[_]; count(object.get(p.spec, "ephemeralContainers", [])) > 0 }
@@ -28,12 +27,14 @@ violation[{"msg": msg}] { p := pod[_]; c := container[_]; ps := object.get(p.spe
 violation[{"msg": msg}] { c := container[_]; port := object.get(c, "ports", [])[_]; object.get(port, "hostPort", 0) != 0; msg := sprintf("%s: hostPort is forbidden", [c.name]) }
 violation[{"msg": msg}] { c := container[_]; k := ["requests", "limits"][_]; r := ["cpu", "memory"][_]; value := object.get(object.get(object.get(c, "resources", {}), k, {}), r, ""); {"", "0", "0m", "0Mi", "0Gi", 0}[value]; msg := sprintf("%s: require nonzero %s.%s", [c.name, k, r]) }
 violation[{"msg": msg}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; not allowed_volume(v); msg := sprintf("%s: volume type is forbidden", [v.name]) }
-violation[{"msg": "projected service-account tokens are forbidden"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; source := v.projected.sources[_]; object.get(source, "serviceAccountToken", null) != null }
 violation[{"msg": "only the dedicated state PVC is allowed"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; v.persistentVolumeClaim.claimName != "openclaw-state" }
 violation[{"msg": "only the dedicated credential Secret is allowed"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; v.secret.secretName != "openclaw-secrets" }
 violation[{"msg": "only the bootstrap ConfigMap is allowed"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; v.configMap.name != "openclaw-config" }
 violation[{"msg": "unapproved projected Secret"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; v.projected.sources[_].secret.name != "openclaw-secrets" }
-violation[{"msg": "unapproved projected ConfigMap"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; v.projected.sources[_].configMap.name != "openclaw-config" }
+allowed_projected_configmap(name) { name == "openclaw-config" }
+allowed_projected_configmap(name) { name == "kube-root-ca.crt" }
+allowed_projected_configmap(name) { name == "openshift-service-ca.crt" }
+violation[{"msg": "unapproved projected ConfigMap"}] { p := pod[_]; v := object.get(p.spec, "volumes", [])[_]; name := v.projected.sources[_].configMap.name; not allowed_projected_configmap(name) }
 violation[{"msg": "unapproved environment Secret reference"}] { c := container[_]; c.env[_].valueFrom.secretKeyRef.name != "openclaw-secrets" }
 violation[{"msg": "unapproved envFrom Secret reference"}] { c := container[_]; c.envFrom[_].secretRef.name != "openclaw-secrets" }
 violation[{"msg": "unapproved environment ConfigMap reference"}] { c := container[_]; c.env[_].valueFrom.configMapKeyRef.name != "openclaw-config" }

@@ -8,30 +8,41 @@ work=Path(__file__).resolve().parent
 catalog=json.loads((work/'rendered/demos/catalog.json').read_text())
 source=json.loads((work/'rendered/source-record.json').read_text())
 admission=[]
+admission_evidence=['# Live admission-suite evidence','',
+                    'All cases below used Kubernetes server-side dry-run. No test Deployment or Pod was persisted.','']
 for i,case in enumerate(catalog,1):
     evidence=work/'rendered/demos'/f"{case['name']}.evidence.txt"
     completed=evidence.exists() and evidence.stat().st_size>0
     layer='Gatekeeper' if case['layer']=='gatekeeper' else 'SCC'
     actual=('Allowed' if case['expected']=='allow' else 'Denied') if completed else 'Not run'
+    anchor=f"a{i:02d}-{case['name']}"
     admission.append({
         'id':f'A{i:02d}','layer':layer,'case':case['name'],
         'expected':'Allow' if case['expected']=='allow' else 'Deny',
         'actual':actual,'status':'PASS' if completed else 'PENDING',
-        'evidence':f"openclaw-baseline-work/rendered/demos/{case['name']}.evidence.txt",
+        'evidence':f"openclaw-baseline-work/admission-suite-evidence.md#{anchor}",
         'note':case['reason']
     })
+    raw=evidence.read_text(errors='replace').strip() if completed else 'Not run.'
+    admission_evidence.extend([
+        f'<a id="{anchor}"></a>',f"## A{i:02d} — `{case['name']}`",'',
+        f"- Layer: {layer}",f"- Expected: {'Allow' if case['expected']=='allow' else 'Deny'}",
+        f"- Result: {actual}",'','```text',raw,'```',''
+    ])
+(work/'admission-suite-evidence.md').write_text('\n'.join(admission_evidence))
 
 checks=[
  {'id':'INF-01','group':'Infrastructure','case':'Pinned source and image','expected':'Pinned commit and digest','actual':'Verified','status':'PASS','note':f"{source['starter_commit']} · {', '.join(source['images'])}"},
  {'id':'INF-02','group':'Infrastructure','case':'Persistent storage','expected':'gp3-csi block volume bound','actual':'5 GiB RWO PVC Bound','status':'PASS','note':'Dedicated openclaw-state claim.'},
- {'id':'INF-03','group':'Infrastructure','case':'Required SCC','expected':'Dedicated restricted SCC selected','actual':'openclaw-baseline-restricted','status':'PASS','note':'Derived from restricted-v3; pod uses user namespace and non-root execution.'},
+ {'id':'INF-03','group':'Infrastructure','case':'Required SCC','expected':'Dedicated custom SCC selected; UID rule permits the OpenClaw image user','actual':'openclaw-baseline-anyuid','status':'PASS','note':'Cloned from restricted-v3 with RunAsAny; seccomp, nonprivileged, no-escalation, drop-ALL, and read-only-root controls remain.'},
  {'id':'INF-04','group':'Infrastructure','case':'Gatekeeper template','expected':'Compiled without errors','actual':'Created; all controller status entries error-free','status':'PASS','note':'Operator-managed Gatekeeper operand, version aligned to installed 3.21.2 bundle.'},
  {'id':'INF-05','group':'Infrastructure','case':'Fail-closed webhook scope','expected':'Fail, exact demo namespace, ready endpoints','actual':'Fail; 3 ready endpoints; CA present','status':'PASS','note':'Validation scope is limited to openclaw-baseline.'},
- {'id':'INF-06','group':'Infrastructure','case':'Constraint enforcement','expected':'Deny','actual':'Deny','status':'PASS','note':'Only the OpenClawBaseline constraint in the demo namespace.'},
+ {'id':'INF-06','group':'Infrastructure','case':'Constraint enforcement','expected':'Compliant Deployment allowed; violating Deployment denied','actual':'Compliant server dry-run allowed; replicas=2 denied with HTTP 403','status':'PASS' if (work/'gatekeeper-live-dryrun.evidence.txt').exists() else 'BLOCKED','note':'OpenClawBaseline is enforcementAction=deny and matches only openclaw-baseline; neither dry-run object was persisted.','evidence':'openclaw-baseline-work/gatekeeper-live-dryrun.evidence.txt'},
  {'id':'INF-07','group':'Infrastructure','case':'Open ingress and egress policy','expected':'All ingress and egress allowed for app selector','actual':'Configured','status':'PASS','note':'Cluster-level firewall or egress controls are outside this NetworkPolicy.'},
  {'id':'INF-08','group':'Infrastructure','case':'Edge Route health endpoints','expected':'/startupz and /healthz return JSON 200','actual':'Both return application/json 200','status':'PASS','note':'HTTPS edge termination with HTTP redirect.'},
  {'id':'INF-09','group':'Infrastructure','case':'Final cluster API availability','expected':'API available for remaining live checks','actual':'Recovered; final audit and rollout checks succeeded','status':'PASS','note':'Transient HTTP 500, etcd, and TLS timeouts occurred earlier; the API recovered before final verification.','evidence':'openclaw-baseline-work/final-cluster-snapshot.evidence.txt'},
- {'id':'R01','group':'Runtime','case':'Filesystem and SQLite containment','expected':'Non-root, no API token, writable state/tmp, denied system-root write','actual':'Verified in the running Gateway container','status':'PASS' if (work/'runtime-probe.evidence.txt').exists() else 'BLOCKED','note':'OpenShift SCCExecRestrictions timed out on the first attempt; the probe later passed.','evidence':'openclaw-baseline-work/runtime-probe.evidence.txt'},
+ {'id':'R01','group':'Runtime','case':'Service-account token and RBAC','expected':'Non-root, token mounted, Deployment create allowed, update/delete denied','actual':'UID 1000; token file present; create=yes; update/delete=no','status':'PASS' if (work/'runtime-rbac.evidence.txt').exists() else 'BLOCKED','note':'Token contents were not read or recorded. RBAC is namespace-scoped.','evidence':'openclaw-baseline-work/runtime-rbac.evidence.txt'},
+ {'id':'R02','group':'Runtime','case':'Filesystem and SQLite containment','expected':'Writable state/tmp and denied system-root write','actual':'Previously verified before the API token mount; not rerun after the change','status':'MANUAL_CONFIGURATION_PENDING','note':'The earlier probe evidence predates the service-account token mount.','evidence':'openclaw-baseline-work/runtime-probe.evidence.txt'},
  {'id':'UI01','group':'Runtime','case':'Control UI device pairing','expected':'Approve the exact pending requests specified by the operator','actual':'Both specified requests approved','status':'PASS' if (work/'device-approval.evidence.txt').exists() else 'MANUAL_CONFIGURATION_PENDING','note':'Both request IDs were individually confirmed pending before approval.','evidence':'openclaw-baseline-work/device-approval.evidence.txt'},
  {'id':'UI02','group':'Runtime','case':'Authenticated Control UI session','expected':'Open the Route with the Gateway token and confirm owner session','actual':'Not exercised','status':'MANUAL_CONFIGURATION_PENDING','note':'Device requests are approved; a browser login/owner session was not verified.'},
  {'id':'NET01','group':'Runtime','case':'Outbound DNS/TLS from Gateway pod','expected':'MiniMax Global resolves and accepts HTTPS','actual':'MiniMax Global HTTPS reachable; HTTP 401 without credentials' if (work/'network-probe.evidence.txt').exists() else 'Not verified from pod','status':'PASS' if (work/'network-probe.evidence.txt').exists() else 'BLOCKED','note':'A non-model HTTPS request verifies egress to the MiniMax Global endpoint.','evidence':'openclaw-baseline-work/network-probe.evidence.txt'},
@@ -44,8 +55,17 @@ if policy_test_path.exists():
         'expected':'HTTP 403 from Gatekeeper; dry-run object not persisted',
         'actual':f"HTTP {policy_test['httpStatus']} · {policy_test['constraint']}",
         'status':policy_test['status'],
-        'note':f"One OpenClaw exec call using {policy_test['model']}; temporary RBAC and token removed after the run.",
-        'model':policy_test['model'],'evidence':'openclaw-policy-tool/denial-result.json'
+        'note':f"Historical native exec test using {policy_test['model']} before the policy was adjusted to allow the requested service-account token; use a replicas violation for current denial verification.",
+        'model':policy_test['model'],'historical':True,'evidence':'openclaw-policy-tool/denial-result.json'
+    })
+current_policy_evidence=work/'gatekeeper-live-dryrun.evidence.txt'
+if current_policy_evidence.exists():
+    checks.append({
+        'id':'GK01','group':'Gatekeeper API','case':'Current server-side dry-run enforcement',
+        'expected':'Valid Deployment allowed; replicas=2 denied by the named Constraint',
+        'actual':'Valid Deployment allowed; replicas=2 returned HTTP 403',
+        'status':'PASS','note':'Both requests used server-side dry-run and neither object was persisted.',
+        'evidence':'openclaw-baseline-work/gatekeeper-live-dryrun.evidence.txt'
     })
 provider_model='MiniMax-M2.7-highspeed'
 provider_evidence=work/'provider-verifier.evidence.txt'
@@ -123,9 +143,8 @@ document.getElementById('subtitle').textContent=`${report.app} · namespace ${re
 document.getElementById('metadata').textContent=`Captured ${report.date} · cluster ${report.cluster}`;
 const providerPassed=report.checks.filter(x=>x.group==='MiniMax'&&x.status==='PASS').length;
 const blockedIds=report.checks.filter(x=>x.status==='BLOCKED').map(x=>x.id);
-const toolPassed=report.checks.filter(x=>x.group==='OpenClaw Tools'&&x.status==='PASS').length;
-const toolTotal=report.checks.filter(x=>x.group==='OpenClaw Tools').length;
-document.getElementById('notice').innerHTML=`${pass}/${report.admission.length} admission cases passed. ${providerPassed}/10 MiniMax checks passed through OpenClaw. ${toolPassed}/${toolTotal} direct-exec policy tests passed. Remaining blocked checks: ${blockedIds.length?blockedIds.join(', '):'none'}.`;
+const historicalToolPassed=report.checks.filter(x=>x.group==='OpenClaw Tools'&&x.status==='PASS'&&x.historical).length;
+document.getElementById('notice').innerHTML=`${pass}/${report.admission.length} admission cases passed. ${providerPassed}/10 MiniMax checks passed through OpenClaw. ${historicalToolPassed} historical native-exec policy test(s) passed; see GK01 for current server-side dry-run enforcement. Remaining blocked checks: ${blockedIds.length?blockedIds.join(', '):'none'}.`;
 document.getElementById('stats').innerHTML=[
  [`${pass}/${report.admission.length}`,'admission cases passed'],
  ['1/1','OpenClaw pod running'],
@@ -136,7 +155,7 @@ document.getElementById('facts').innerHTML=[
  ['Route',`<a href="${esc(report.route)}">${esc(report.route)}</a>`],
  ['Requested model',esc(report.model)],
  ['Storage','gp3-csi · 5 GiB · RWO · Bound'],
- ['Admission controls','Custom restricted SCC + namespace-scoped Gatekeeper deny']
+ ['Admission controls','Custom RunAsAny SCC with retained controls + namespace-scoped Gatekeeper deny']
 ].map(x=>`<p><strong>${x[0]}</strong><br>${x[1]}</p>`).join('');
 document.getElementById('admission-caption').textContent=`${pass} passed · ${report.admission.length-pass} pending`;
 document.getElementById('check-caption').textContent=`${report.checks.length} checks`;
