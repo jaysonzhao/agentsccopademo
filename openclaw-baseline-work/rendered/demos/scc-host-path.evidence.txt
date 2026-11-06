@@ -1,0 +1,1 @@
+Error from server (Forbidden): error when creating "/Users/haozhao/Documents/ChatGPT/openclawsccopa/openclaw-baseline-work/rendered/demos/scc-host-path.yaml": pods "scc-host-path" is forbidden: unable to validate against any security context constraint: spec.volumes[3]: Invalid value: "hostPath": hostPath volumes are not allowed to be used

@@ -1,0 +1,8 @@
+PASS P01 Secret is injected (value hidden)
+PASS P02 OpenClaw config validation
+PASS P03 model appears in OpenClaw catalog
+PASS P04 expected effective primary model
+PASS P05 Gateway turn completed
+PASS P06 actual provider/model match
+PASS P07 real model reply contains fresh test marker
+Verified through OpenClaw Gateway: minimax/MiniMax-M2.7-highspeed

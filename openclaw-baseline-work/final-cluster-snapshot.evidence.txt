@@ -1,0 +1,7 @@
+PASS: Gatekeeper OpenClawBaseline constraint enforcementAction=deny; scope=openclaw-baseline.
+PASS: Gatekeeper audit 2026-11-05T10:05:27Z; totalViolations=0.
+PASS: ConstraintTemplate created=true; all four Gatekeeper pod status entries have no errors.
+PASS: validation.gatekeeper.sh failurePolicy=Fail; exact namespace selector; CA bundle present.
+PASS: Deployment generation observed; 1 updated, 1 ready, 1 available; minimum availability true.
+PASS: PVC openclaw-state Bound, 5 GiB RWO, gp3-csi.
+Note: the cluster API had transient HTTP 500/TLS/etcd timeouts earlier in the run; final status requests succeeded.

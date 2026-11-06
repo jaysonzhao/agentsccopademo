@@ -1,0 +1,3 @@
+P09 restart: a new ReplicaSet pod became Ready after restarting deployment/openclaw.
+PASS P01–P07 rerun on the new pod: secret injected; config valid; model catalog and effective default correct; Gateway turn completed; provider/model metadata matched; fresh reply marker returned.
+Verified through OpenClaw Gateway: minimax/MiniMax-M2.7-highspeed

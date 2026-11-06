@@ -1,0 +1,1 @@
+PASS: Gateway pod resolved api.minimax.io and completed TLS/HTTPS to https://api.minimax.io/v1/models (HTTP 401 without credentials; no API key was sent).

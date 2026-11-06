@@ -1,0 +1,42 @@
+{
+  "apiVersion": "operator.gatekeeper.sh/v1alpha1",
+  "kind": "Gatekeeper",
+  "metadata": {
+    "name": "gatekeeper"
+  },
+  "spec": {
+    "validatingWebhook": "Enabled",
+    "mutatingWebhook": "Disabled",
+    "audit": {
+      "replicas": 1
+    },
+    "webhook": {
+      "replicas": 3,
+      "failurePolicy": "Fail",
+      "namespaceSelector": {
+        "matchLabels": {
+          "kubernetes.io/metadata.name": "openclaw-baseline"
+        }
+      },
+      "rules": [
+        {
+          "apiGroups": [
+            "*"
+          ],
+          "apiVersions": [
+            "*"
+          ],
+          "operations": [
+            "CREATE",
+            "UPDATE"
+          ],
+          "resources": [
+            "*",
+            "pods/ephemeralcontainers"
+          ],
+          "scope": "Namespaced"
+        }
+      ]
+    }
+  }
+}

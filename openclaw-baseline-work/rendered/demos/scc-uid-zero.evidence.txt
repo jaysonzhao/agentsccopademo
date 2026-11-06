@@ -1,0 +1,1 @@
+Error from server (Forbidden): error when creating "/Users/haozhao/Documents/ChatGPT/openclawsccopa/openclaw-baseline-work/rendered/demos/scc-uid-zero.yaml": pods "scc-uid-zero" is forbidden: unable to validate against any security context constraint: provider openclaw-baseline-restricted: .containers[0].runAsUser: Invalid value: 0: must be in the ranges: [1000, 65534]

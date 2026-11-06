@@ -1,0 +1,11 @@
+# Local credentials and provider settings
+**/gateway-token
+**/provider-settings*.json
+**/minimax.key
+**/*.key
+**/*.pem
+**/*.p12
+
+# Local cluster snapshots and downloaded source trees
+**/gatekeeper-before/
+**/starter/

@@ -1,0 +1,2 @@
+Warning: would violate PodSecurity "baseline:latest": non-default capabilities (container "init-config" must not include "SYS_ADMIN" in securityContext.capabilities.add)
+Error from server (Forbidden): error when creating "/Users/haozhao/Documents/ChatGPT/openclawsccopa/openclaw-baseline-work/rendered/demos/gk-init-capability.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [openclaw-baseline-baseline] init-config: added capabilities are forbidden

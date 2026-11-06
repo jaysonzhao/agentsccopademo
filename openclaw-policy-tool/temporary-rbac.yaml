@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: openclaw-policy-probe
+  namespace: openclaw-baseline
+  labels:
+    app.kubernetes.io/name: openclaw-policy-probe
+    app.kubernetes.io/managed-by: codex-demo
+automountServiceAccountToken: false
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: openclaw-policy-probe
+  namespace: openclaw-baseline
+  labels:
+    app.kubernetes.io/name: openclaw-policy-probe
+    app.kubernetes.io/managed-by: codex-demo
+rules:
+  - apiGroups: [apps]
+    resources: [deployments]
+    resourceNames: [openclaw]
+    verbs: [get]
+  - apiGroups: [apps]
+    resources: [deployments]
+    verbs: [create]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: openclaw-policy-probe
+  namespace: openclaw-baseline
+  labels:
+    app.kubernetes.io/name: openclaw-policy-probe
+    app.kubernetes.io/managed-by: codex-demo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: openclaw-policy-probe
+subjects:
+  - kind: ServiceAccount
+    name: openclaw-policy-probe
+    namespace: openclaw-baseline

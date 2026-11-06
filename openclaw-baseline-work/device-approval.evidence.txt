@@ -1,0 +1,2 @@
+PASS: request 6435e75c-49cc-4063-a94f-ffe583280c23 was confirmed pending and approved; the device appears as openclaw-control-ui with operator role/scopes.
+PASS: request 27bb2f1f-0f4d-43a8-aa56-a8031200189b was confirmed pending and approved; OpenClaw returned approved device ID 4cf18d46a66863157f65cbb9d2ec00038feb58ab39cbfb87e4c11788619dbccc.

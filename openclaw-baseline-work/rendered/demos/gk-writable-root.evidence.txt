@@ -1,0 +1,1 @@
+Error from server (Forbidden): error when creating "/Users/haozhao/Documents/ChatGPT/openclawsccopa/openclaw-baseline-work/rendered/demos/gk-writable-root.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [openclaw-baseline-baseline] gateway: readOnlyRootFilesystem must be true

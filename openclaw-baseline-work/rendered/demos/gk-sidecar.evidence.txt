@@ -1,0 +1,7 @@
+Error from server (Forbidden): error when creating "/Users/haozhao/Documents/ChatGPT/openclawsccopa/openclaw-baseline-work/rendered/demos/gk-sidecar.yaml": admission webhook "validation.gatekeeper.sh" denied the request: [openclaw-baseline-baseline] unsafe-sidecar: allowPrivilegeEscalation must be false
+[openclaw-baseline-baseline] unsafe-sidecar: drop ALL capabilities
+[openclaw-baseline-baseline] unsafe-sidecar: readOnlyRootFilesystem must be true
+[openclaw-baseline-baseline] unsafe-sidecar: require nonzero limits.cpu
+[openclaw-baseline-baseline] unsafe-sidecar: require nonzero limits.memory
+[openclaw-baseline-baseline] unsafe-sidecar: require nonzero requests.cpu
+[openclaw-baseline-baseline] unsafe-sidecar: require nonzero requests.memory

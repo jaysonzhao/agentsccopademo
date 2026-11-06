@@ -1,0 +1,2 @@
+PASS R01: non-root, no standard API token, writable tmp and SQLite FTS5, system-root write denied.
+Service account impersonation: get secrets = no; create pods = no.
