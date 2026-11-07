@@ -1,10 +1,10 @@
 """Clone the current OpenClaw into a separate Deployment using the restricted SCC.
 
 The script reuses the API-key configuration, image, probes, resources, and Gateway
-settings, and assigns a dedicated ServiceAccount with restricted-SCC and create-only
-Deployment permissions. It creates a separate PVC and Gateway token and does not patch
-or restart the existing OpenClaw Deployment. Credential-like config fields are removed
-from the copied ConfigMap; the provider key comes from a cloned Kubernetes Secret.
+settings, and assigns a dedicated ServiceAccount with only the restricted-SCC use
+binding. It creates a separate PVC and Gateway token and does not patch or restart the
+existing OpenClaw Deployment. Credential-like config fields are removed from the copied
+ConfigMap; the provider key comes from a cloned Kubernetes Secret.
 """
 import base64
 import copy
@@ -97,13 +97,12 @@ def build_documents():
     route_name = NAME
     policy_name = NAME + '-open-network'
     rolebinding_name = NAME + '-use-scc'
-    create_binding_name = NAME + '-create-deployments'
 
     targets = [
         ('deployment', NAME), ('service', service_name), ('route', route_name),
         ('pvc', claim_name), ('configmap', config_name), ('secret', secret_name),
         ('networkpolicy', policy_name), ('serviceaccount', SERVICE_ACCOUNT),
-        ('rolebinding', rolebinding_name), ('rolebinding', create_binding_name),
+        ('rolebinding', rolebinding_name),
     ]
     def check_target(target):
         kind, name = target
@@ -123,8 +122,7 @@ def build_documents():
                    ('service', 'service', 'openclaw'),
                    ('networkpolicy', 'networkpolicy', 'openclaw-open-network'),
                    ('secret', 'secret', 'openclaw-secrets'),
-                   ('role', 'role', 'use-openclaw-scc'),
-                   ('create_role', 'role', 'openclaw-create-deployments')]
+                   ('role', 'role', 'use-openclaw-scc')]
     with ThreadPoolExecutor(max_workers=8) as pool:
         source_values = list(pool.map(lambda key: oc_json(key[1], key[2]), source_keys))
     source = dict(zip((key[0] for key in source_keys), source_values))
@@ -215,14 +213,6 @@ def build_documents():
         'subjects': [{'kind': 'ServiceAccount', 'name': SERVICE_ACCOUNT, 'namespace': NAMESPACE}],
         'roleRef': {'apiGroup': 'rbac.authorization.k8s.io', 'kind': 'Role', 'name': 'use-openclaw-scc'},
     }
-    create_binding = {
-        'apiVersion': 'rbac.authorization.k8s.io/v1',
-        'kind': 'RoleBinding',
-        'metadata': {'name': create_binding_name, 'namespace': NAMESPACE},
-        'subjects': [{'kind': 'ServiceAccount', 'name': SERVICE_ACCOUNT, 'namespace': NAMESPACE}],
-        'roleRef': {'apiGroup': 'rbac.authorization.k8s.io', 'kind': 'Role', 'name': 'openclaw-create-deployments'},
-    }
-
     role = source['role']
     permitted = any(
         rule.get('apiGroups') == ['security.openshift.io']
@@ -232,11 +222,8 @@ def build_documents():
         for rule in role.get('rules', []))
     if not permitted:
         raise RuntimeError(f'Role use-openclaw-scc does not authorize use of {SCC}.')
-    create_rules = source['create_role'].get('rules', [])
-    if create_rules != [{'apiGroups': ['apps'], 'resources': ['deployments'], 'verbs': ['create']}]:
-        raise RuntimeError('Role openclaw-create-deployments is missing or broader than the reviewed create-only rule.')
 
-    return [secret, config, pvc, account, rolebinding, create_binding, service, network, route, deployment], new_host
+    return [secret, config, pvc, account, rolebinding, service, network, route, deployment], new_host
 
 
 def main():
